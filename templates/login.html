@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>Connexion</h1>
+  <p class="muted">Saisissez le mot de passe partagé pour accéder au journal des rencontres.</p>
+  <form method="post" action="{{ url_for('login', next=request.args.get('next')) }}">
+    <label for="password">Mot de passe</label>
+    <input type="password" id="password" name="password" autofocus required>
+    <button class="btn btn-primary btn-block" type="submit">Entrer</button>
+  </form>
+</div>
+{% endblock %}

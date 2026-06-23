@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Courriel · {{ x['mail_date'] | fr_date }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Courriel — {{ x['mail_date'] | fr_date }}</h1>
+  <span class="head-actions">
+    <a class="btn btn-primary" href="{{ url_for('edit_mail', mail_id=x['id']) }}">Modifier</a>
+    <a class="btn btn-ghost" href="{{ url_for('mails') }}">Retour</a>
+  </span>
+</div>
+
+<div class="card">
+  <div class="grid-2">
+    <div class="field">
+      <label>Sens</label>
+      <p>{{ directions[x['direction']] }}</p>
+    </div>
+    <div class="field">
+      <label>Importance</label>
+      <p>{% if x['important'] %}⭐ Important{% else %}Normal{% endif %}</p>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Personnes concernées</label>
+    {% if people %}
+      <ul class="people-list">
+        {% for p in people %}
+          <li>
+            <a href="{{ url_for('person_detail', person_id=p['id']) }}">{{ p['name'] }}</a>
+            <span class="tag">{{ p['political_group'] }}</span>
+            <span class="muted">· {{ p['stance'] }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">Aucune personne liée.</p>
+    {% endif %}
+  </div>
+
+  {% if x['direction'] == 'sent' and x['follow_up_date'] %}
+  <div class="field">
+    <label>Relance prévue</label>
+    {% set d = x['follow_up_date'] | days_until %}
+    <p>
+      {{ x['follow_up_date'] | fr_date }}
+      {% if d < 0 %}
+        <span class="due due-overdue">en retard de {{ -d }}&nbsp;j</span>
+      {% elif d == 0 %}
+        <span class="due due-soon">aujourd'hui</span>
+      {% else %}
+        <span class="due {{ 'due-soon' if d <= 7 else 'due-ok' }}">dans {{ d }}&nbsp;j</span>
+      {% endif %}
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="field">
+    <label>Résumé</label>
+    <p class="prose">{{ x['summary'] }}</p>
+  </div>
+
+  <div class="field">
+    <label>Document joint</label>
+    {% if x['document_stored_name'] %}
+      <p>📎 <a href="{{ url_for('mail_download', mail_id=x['id']) }}">{{ x['document_orig_name'] }}</a></p>
+    {% else %}
+      <p class="muted">Aucun document joint.</p>
+    {% endif %}
+  </div>
+
+  <p class="muted count">Enregistré le {{ x['created_at'] }} · courriel n°{{ x['id'] }}</p>
+</div>
+{% endblock %}

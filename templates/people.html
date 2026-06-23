@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Personnes{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Personnes</h1>
+  <a class="btn btn-primary" href="{{ url_for('new_person') }}">+ Nouvelle personne</a>
+</div>
+
+<form class="search" method="get" action="{{ url_for('people') }}">
+  <input type="search" name="q" value="{{ q }}"
+         placeholder="Rechercher par nom, groupe politique ou position…">
+  <button class="btn" type="submit">Rechercher</button>
+  {% if q %}<a class="btn btn-ghost" href="{{ url_for('people') }}">Effacer</a>{% endif %}
+</form>
+
+{% if persons %}
+<div class="table-wrap">
+  <table class="meetings">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Fonction</th>
+        <th>Groupe politique</th>
+        <th>Position sur PauseAI</th>
+        <th>Courriels</th>
+        <th>Rencontres</th>
+        <th>Relance</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in persons %}
+      <tr onclick="window.location='{{ url_for('person_detail', person_id=p['id']) }}'">
+        <td><strong>{{ p['name'] }}</strong></td>
+        <td>{{ p['role'] or '—' }}</td>
+        <td><span class="tag">{{ p['political_group'] }}</span></td>
+        <td>{{ p['stance'] }}</td>
+        <td class="nowrap">
+          <span title="Envoyés">↗ {{ p['mails_sent'] }}</span> ·
+          <span title="Reçus">↘ {{ p['mails_received'] }}</span>
+        </td>
+        <td class="nowrap">{{ p['meeting_count'] }}</td>
+        <td class="nowrap">
+          {% if p['follow_up_date'] %}
+            {% set d = p['follow_up_date'] | days_until %}
+            {{ p['follow_up_date'] | fr_date }}
+            {% if d < 0 %}
+              <span class="due due-overdue">en retard de {{ -d }}&nbsp;j</span>
+            {% elif d == 0 %}
+              <span class="due due-soon">aujourd'hui</span>
+            {% else %}
+              <span class="due {{ 'due-soon' if d <= 7 else 'due-ok' }}">dans {{ d }}&nbsp;j</span>
+            {% endif %}
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="muted count">{{ persons|length }} personne{{ '' if persons|length == 1 else 's' }}</p>
+{% else %}
+<div class="empty">
+  {% if q %}
+    <p>Aucune personne ne correspond à « {{ q }} ».</p>
+    <a class="btn" href="{{ url_for('people') }}">Tout afficher</a>
+  {% else %}
+    <p>Aucune personne enregistrée pour le moment.</p>
+    <a class="btn btn-primary" href="{{ url_for('new_person') }}">Ajouter la première</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

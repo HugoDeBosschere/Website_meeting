@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Rencontres{% endblock %}
+
+{% macro meeting_table(rows) %}
+<div class="table-wrap">
+  <table class="meetings">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Personne(s)</th>
+        <th>Groupe politique</th>
+        <th>Résumé</th>
+        <th>Doc</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in rows %}
+      <tr onclick="window.location='{{ url_for('meeting_detail', meeting_id=m['id']) }}'">
+        <td class="nowrap">{{ m['meeting_date'] | fr_date }}{% if m['meeting_time'] %}<br><span class="muted">{{ m['meeting_time'] }}</span>{% endif %}</td>
+        <td><strong>{{ m['person_names'] or '—' }}</strong></td>
+        <td>
+          {% for grp in (m['groups'] or '').split(',') if grp %}
+            <span class="tag">{{ grp }}</span>
+          {% endfor %}
+        </td>
+        <td class="summary-cell">{{ m['summary'] }}</td>
+        <td class="nowrap">
+          {% if m['document_stored_name'] %}📎{% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="page-head">
+  <h1>Rencontres</h1>
+  <span class="head-actions">
+    <a class="btn" href="{{ url_for('calendar_view') }}">📅 Calendrier</a>
+    <a class="btn btn-primary" href="{{ url_for('new_meeting') }}">+ Nouvelle rencontre</a>
+  </span>
+</div>
+
+<form class="search" method="get" action="{{ url_for('index') }}">
+  <input type="search" name="q" value="{{ q }}"
+         placeholder="Rechercher par personne, groupe politique ou résumé…">
+  <button class="btn" type="submit">Rechercher</button>
+  {% if q %}<a class="btn btn-ghost" href="{{ url_for('index') }}">Effacer</a>{% endif %}
+</form>
+
+{% if not upcoming and not past %}
+<div class="empty">
+  {% if q %}
+    <p>Aucune rencontre ne correspond à « {{ q }} ».</p>
+    <a class="btn" href="{{ url_for('index') }}">Tout afficher</a>
+  {% else %}
+    <p>Aucune rencontre enregistrée pour le moment.</p>
+    <a class="btn btn-primary" href="{{ url_for('new_meeting') }}">Ajouter la première</a>
+  {% endif %}
+</div>
+{% else %}
+
+<h2>À venir <span class="muted">({{ upcoming|length }})</span></h2>
+{% if upcoming %}
+  {{ meeting_table(upcoming) }}
+{% else %}
+  <p class="muted">Aucune rencontre à venir.</p>
+{% endif %}
+
+<h2>Passées <span class="muted">({{ past|length }})</span></h2>
+{% if past %}
+  {{ meeting_table(past) }}
+{% else %}
+  <p class="muted">Aucune rencontre passée.</p>
+{% endif %}
+
+{% endif %}
+{% endblock %}

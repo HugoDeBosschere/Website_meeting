@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Rencontres{% endblock %} · PauseIA</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('index') }}">📋 Journal des rencontres</a>
+    <nav>
+      {% if session.get('authenticated') %}
+        <a href="{{ url_for('index') }}">Rencontres</a>
+        <a href="{{ url_for('calendar_view') }}">Calendrier</a>
+        <a href="{{ url_for('mails') }}">Courriels</a>
+        <a href="{{ url_for('people') }}">Personnes</a>
+        <a class="btn btn-primary" href="{{ url_for('new_meeting') }}">+ Rencontre</a>
+        <a class="btn btn-primary" href="{{ url_for('new_mail') }}">+ Courriel</a>
+        <a class="muted" href="{{ url_for('logout') }}">Déconnexion</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <span class="muted">Journal des rencontres PauseIA — usage interne</span>
+  </footer>
+</body>
+</html>

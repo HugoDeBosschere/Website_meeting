@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ heading }}</h1>
+  <a class="btn btn-ghost" href="{{ cancel_url }}">Annuler</a>
+</div>
+
+{% if not people %}
+<div class="empty">
+  <p>Vous devez enregistrer au moins une personne avant de consigner une rencontre.</p>
+  <a class="btn btn-primary" href="{{ url_for('new_person') }}">+ Ajouter une personne</a>
+</div>
+{% else %}
+<form class="card form" method="post" enctype="multipart/form-data"
+      action="{{ action_url }}">
+
+  <div class="field">
+    <label>Personnes rencontrées <span class="req">*</span></label>
+    <div class="checklist">
+      {% for p in people %}
+        <label class="check">
+          <input type="checkbox" name="person_ids" value="{{ p['id'] }}"
+                 {% if (p['id']|string) in selected_ids %}checked{% endif %}>
+          {{ p['name'] }} <span class="muted">— {{ p['political_group'] }}</span>
+        </label>
+      {% endfor %}
+    </div>
+    <p class="hint">
+      Quelqu'un manque ? <a href="{{ url_for('new_person') }}">Ajouter une nouvelle personne</a>.
+    </p>
+  </div>
+
+  <div class="grid-2">
+    <div class="field">
+      <label for="meeting_date">Date de la rencontre <span class="req">*</span></label>
+      <input type="text" id="meeting_date" name="meeting_date" inputmode="numeric"
+             placeholder="JJ/MM/AAAA" value="{{ form.get('meeting_date', today) | fr_date }}" required>
+    </div>
+
+    <div class="field">
+      <label for="meeting_time">Heure <span class="muted">(facultatif)</span></label>
+      <input type="text" id="meeting_time" name="meeting_time" inputmode="numeric"
+             placeholder="HH:MM" value="{{ form.get('meeting_time', '') }}">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="summary">Bref résumé <span class="req">*</span></label>
+    <textarea id="summary" name="summary" rows="5" required
+      placeholder="Sujets abordés, points clés, suites à donner…">{{ form.get('summary', '') }}</textarea>
+  </div>
+
+  <div class="grid-2">
+    <div class="field">
+      <label for="recorded_by">Saisi par <span class="muted">(facultatif)</span></label>
+      <input type="text" id="recorded_by" name="recorded_by"
+             value="{{ form.get('recorded_by', '') }}" placeholder="Votre nom">
+    </div>
+
+    <div class="field">
+      <label for="document">Compte-rendu complet <span class="muted">(facultatif)</span></label>
+      {% if current and current['document_stored_name'] %}
+        <p class="hint">
+          Actuel : 📎 <a href="{{ url_for('download', meeting_id=current['id']) }}">{{ current['document_orig_name'] }}</a>
+          &nbsp;·&nbsp;
+          <label class="check" style="display:inline-flex">
+            <input type="checkbox" name="remove_document" value="1"> supprimer
+          </label>
+        </p>
+      {% endif %}
+      <input type="file" id="document" name="document"
+             accept=".docx,.odt,.txt">
+      <p class="hint">
+        {% if current and current['document_stored_name'] %}Choisir un fichier le remplace. {% endif %}
+        Formats acceptés : .docx, .odt, .txt — jusqu'à 10&nbsp;Mo.
+      </p>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" type="submit">Enregistrer</button>
+    <a class="btn btn-ghost" href="{{ cancel_url }}">Annuler</a>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

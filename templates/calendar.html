@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Calendrier · {{ month_name }} {{ year }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Calendrier</h1>
+  <a class="btn btn-ghost" href="{{ url_for('index') }}">Liste des rencontres</a>
+</div>
+
+<div class="cal-bar">
+  <a class="btn" href="{{ url_for('calendar_view', year=prev_year, month=prev_month) }}">←</a>
+  <strong class="cal-title">{{ month_name | capitalize }} {{ year }}</strong>
+  <a class="btn" href="{{ url_for('calendar_view', year=next_year, month=next_month) }}">→</a>
+  <a class="btn btn-ghost" href="{{ url_for('calendar_view') }}">Aujourd'hui</a>
+  <span class="cal-legend">
+    <span class="cal-ev cal-meeting">Rencontre</span>
+    <span class="cal-ev cal-followup">Relance</span>
+  </span>
+</div>
+
+<div class="table-wrap">
+  <table class="calendar">
+    <thead>
+      <tr>{% for d in weekdays %}<th>{{ d }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for week in weeks %}
+      <tr>
+        {% for day in week %}
+        <td class="cal-cell{% if day.month != month %} cal-out{% endif %}{% if day == today %} cal-today{% endif %}">
+          <div class="cal-daynum">{{ day.day }}</div>
+          {% for ev in events.get(day.isoformat(), []) %}
+            <a class="cal-ev cal-{{ ev.type }}" href="{{ ev.url }}" title="{{ ev.label }}">{{ ev.label }}</a>
+          {% endfor %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

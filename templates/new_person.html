@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ heading }}</h1>
+  <a class="btn btn-ghost" href="{{ cancel_url }}">Annuler</a>
+</div>
+
+<form class="card form" method="post" action="{{ action_url }}">
+
+  <div class="field">
+    <label for="name">Nom <span class="req">*</span></label>
+    <input type="text" id="name" name="name"
+           value="{{ form.get('name', '') }}" autofocus required
+           placeholder="ex. Jean Dupont">
+  </div>
+
+  <div class="field">
+    <label for="role">Fonction <span class="muted">(facultatif)</span></label>
+    <select id="role" name="role">
+      <option value="" {% if not form.get('role') %}selected{% endif %}>
+        Choisir une fonction…
+      </option>
+      {% for r in roles %}
+        <option value="{{ r }}" {% if form.get('role') == r %}selected{% endif %}>{{ r }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="grid-2">
+    <div class="field">
+      <label for="political_group">Groupe politique <span class="req">*</span></label>
+      <select id="political_group" name="political_group" required>
+        <option value="" disabled {% if not form.get('political_group') %}selected{% endif %}>
+          Choisir un groupe politique…
+        </option>
+        {% for institution, names in groups.items() %}
+          <optgroup label="{{ institution }}">
+            {% for name in names %}
+              <option value="{{ name }}"
+                {% if form.get('political_group') == name %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </optgroup>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="stance">Position sur PauseAI <span class="req">*</span></label>
+      <select id="stance" name="stance" required>
+        <option value="" disabled {% if not form.get('stance') %}selected{% endif %}>
+          Quel est son ressenti vis-à-vis de PauseAI ?
+        </option>
+        {% for s in stances %}
+          <option value="{{ s }}" {% if form.get('stance') == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="field">
+      <label for="first_contacted">Premier contact <span class="muted">(facultatif)</span></label>
+      <input type="text" id="first_contacted" name="first_contacted" inputmode="numeric"
+             placeholder="JJ/MM/AAAA" value="{{ form.get('first_contacted', '') | fr_date }}">
+      <p class="hint">Les dates de rencontre sont suivies automatiquement à partir des rencontres enregistrées.</p>
+    </div>
+
+    <div class="field">
+      <label for="follow_up_date">Relance prévue le <span class="muted">(facultatif)</span></label>
+      <input type="text" id="follow_up_date" name="follow_up_date" inputmode="numeric"
+             placeholder="JJ/MM/AAAA" value="{{ form.get('follow_up_date', '') | fr_date }}">
+      <p class="hint">Date à laquelle envoyer un nouveau courriel à cette personne.</p>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="notes">Notes <span class="muted">(facultatif)</span></label>
+    <textarea id="notes" name="notes" rows="4"
+      placeholder="Tout ce qu'il est utile de retenir sur cette personne…">{{ form.get('notes', '') }}</textarea>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" type="submit">Enregistrer</button>
+    <a class="btn btn-ghost" href="{{ cancel_url }}">Annuler</a>
+  </div>
+</form>
+{% endblock %}

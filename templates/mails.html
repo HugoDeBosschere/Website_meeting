@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Courriels{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Courriels</h1>
+  <a class="btn btn-primary" href="{{ url_for('new_mail') }}">+ Nouveau courriel</a>
+</div>
+
+<form class="search" method="get" action="{{ url_for('mails') }}">
+  <input type="search" name="q" value="{{ q }}"
+         placeholder="Rechercher par personne ou résumé…">
+  <button class="btn" type="submit">Rechercher</button>
+  {% if q %}<a class="btn btn-ghost" href="{{ url_for('mails') }}">Effacer</a>{% endif %}
+</form>
+
+{% if mails %}
+<div class="table-wrap">
+  <table class="meetings">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Sens</th>
+        <th>Personne(s)</th>
+        <th>Résumé</th>
+        <th>Doc</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for x in mails %}
+      <tr onclick="window.location='{{ url_for('mail_detail', mail_id=x['id']) }}'">
+        <td class="nowrap">
+          {{ x['mail_date'] | fr_date }}
+          {% if x['important'] %}<span title="Important">⭐</span>{% endif %}
+        </td>
+        <td class="nowrap">{{ directions[x['direction']] }}</td>
+        <td><strong>{{ x['person_names'] or '—' }}</strong></td>
+        <td class="summary-cell">{{ x['summary'] }}</td>
+        <td class="nowrap">{% if x['document_stored_name'] %}📎{% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="muted count">{{ mails|length }} courriel{{ '' if mails|length == 1 else 's' }}</p>
+{% else %}
+<div class="empty">
+  {% if q %}
+    <p>Aucun courriel ne correspond à « {{ q }} ».</p>
+    <a class="btn" href="{{ url_for('mails') }}">Tout afficher</a>
+  {% else %}
+    <p>Aucun courriel enregistré pour le moment.</p>
+    <a class="btn btn-primary" href="{{ url_for('new_mail') }}">Ajouter le premier</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
